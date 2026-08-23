@@ -91,12 +91,15 @@ firewall_bottom = firewall_y + firewall_h
 
 # --- Movement ---
 Mov = 10
+starting_ground = WINDOW_HEIGHT
 
 # --- Main Loop ---
 running = True
 while running:
     prev_ground = ground
     keys = pygame.key.get_pressed()
+    
+    # input(double jump, take cheese), log(jump coordinate, double jump coordinate)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -113,6 +116,7 @@ while running:
                     can_jump = False
                     can_double_jump = True
                     print("Jumping:", jumping, "at", jane_y2)
+                    starting_ground = ground
             if event.key == pygame.K_f:
                 if (
                     jane_x2 >= cheese_x and jane_x2 <= cheese_right
@@ -121,32 +125,26 @@ while running:
                     if cheese_taken: cheese_taken = False
                     else: cheese_taken = True
 
-    
-    # --- Movement Control ---
+    # Input(move forward, move backward), logic(flip avatar)
     if keys[pygame.K_d]:
         if not forward_blocked:
             jane_x1 += Mov
             if not jane_facing_right:
                 jane_facing_right = True
                 jane_img = flip_x(jane_img)
-        # else: print("forward Blocked")
-
+        # else: print("forward Blocked"
     if keys[pygame.K_a] and not toback_blocked:
         jane_x1 -= Mov
         if jane_facing_right:
             jane_facing_right = False
             jane_img = flip_x(jane_img)
 
-    # --- Update Rect Values ---
+    # update value
     jane_x2 = jane_x1 + jane_width
     jane_y1 = jane_y2 - jane_height
-
-    # --- Cheese Fading ---
-    # fade_on_approach(jane_x + jane_img.get_width(), cheese_x, cheese_img)
-    # --- Taking Cheese Logic ---
         
 
-    # --- Collision Blocking ---
+    # logic(collision blocking)
     if (
         (jane_x2 >= firewall_x + int(firewall_w / 2) - 20)
         and 
@@ -156,8 +154,7 @@ while running:
         ):
         forward_blocked = True
     else:
-        forward_blocked = False
-        
+        forward_blocked = False    
     if (
         (jane_x1 >= firewall_x + int(firewall_w / 2) - 20 )
         and 
@@ -169,7 +166,7 @@ while running:
     else:
         toback_blocked = False
 
-    # --- Standing on Firewall ---
+    # logic(stand on firewall)
     if (jane_y2 <= firewall_y + 34
         and jane_x2 >= firewall_x
         and jane_x1 <= firewall_right):
@@ -178,19 +175,21 @@ while running:
     else:
         on_platform = False
 
-    # --- Falling from firewall ---
+    # logic(fall from firewall)
     if not on_platform:
         ground = WINDOW_HEIGHT
     if ground != prev_ground:
         jumping = True
         going_up = False
-        
+    
+    # log(ground changing)
     if ground != prev_ground:
         print("prev ground: ", prev_ground)
         print("current ground ", ground)
     
-    # --- Jump Logic ---
+    # logic(jump), log(foot coordinate)
     if jumping:
+        # start jumping
         if going_up and jump_height >= 10:
             jane_y2 -= 10
             print("going up: ", jane_y2)
@@ -198,7 +197,7 @@ while running:
         elif not going_up and jane_y2 < ground:
             print("going down: ", jane_y2)
             jane_y2 += 10
-            # reach the ground
+        # reach the ground
         if jane_y2 >= ground:
             jumping = False
             can_jump = True
@@ -206,7 +205,7 @@ while running:
             can_double_jump = False
             extra_jump_height = 0
         #fall switch
-        if ground - jane_y2 >= (jump_height + extra_jump_height) and going_up:
+        if starting_ground - jane_y2 >= (jump_height + extra_jump_height) and going_up:
             print("fall at", jane_y2)
             print("jump height:", jump_height+ extra_jump_height)
             going_up = False
