@@ -67,8 +67,6 @@ ground = WINDOW_HEIGHT
 jump_height = 80
 extra_jump_height = 0
 on_platform = False
-on_ground = True
-is_falling = False
 
 # --- Cheese Setup ---
 cheese_img = loadImage("assets/cheese.png").convert_alpha()
