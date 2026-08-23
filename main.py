@@ -45,7 +45,7 @@ display = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 clock = pygame.time.Clock()
 
 # --- Jane Setup ---
-jane_img = loadImage(join("jane1.png")).convert_alpha()
+jane_img = loadImage(join("assets\jane1.png")).convert_alpha()
 jane_img = setSize_W(jane_img, 100)
 
 jane_width = jane_img.get_width()
@@ -71,7 +71,7 @@ on_ground = True
 is_falling = False
 
 # --- Cheese Setup ---
-cheese_img = loadImage("cheese.png").convert_alpha()
+cheese_img = loadImage("assets/cheese.png").convert_alpha()
 cheese_img = setSize_W(cheese_img, 40)
 cheese_x = right_edge(cheese_img) - cheese_img.get_width()
 cheese_y = bottom_edge(cheese_img)
@@ -80,7 +80,7 @@ cheese_taken = False
 cheese_facing_right = True
 
 # --- Firewall Setup ---
-firewall_img = loadImage("firewall.png").convert_alpha()
+firewall_img = loadImage("assets/firewall.png").convert_alpha()
 firewall_img = setSize_WH(firewall_img, 100, 200)
 firewall_x = right_edge(firewall_img) - 400
 firewall_y = int(bottom_edge(firewall_img) + firewall_img.get_height() / 3)
