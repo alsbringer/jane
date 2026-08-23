@@ -45,7 +45,7 @@ display = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 clock = pygame.time.Clock()
 
 # --- Jane Setup ---
-jane_img = loadImage(join("assets\jane1.png")).convert_alpha()
+jane_img = loadImage(join("assets/jane1.png")).convert_alpha()
 jane_img = setSize_W(jane_img, 100)
 
 jane_width = jane_img.get_width()
@@ -56,7 +56,7 @@ jane_y1 = WINDOW_HEIGHT - jane_img.get_height()
 jane_x2 = jane_x1 + jane_width
 jane_y2 = jane_y1 + jane_height
 
-jane_facing_right = True
+jane_direction = "right"
 forward_blocked = False
 toback_blocked = False
 jumping = False
@@ -129,14 +129,14 @@ while running:
     if keys[pygame.K_d]:
         if not forward_blocked:
             jane_x1 += Mov
-            if not jane_facing_right:
-                jane_facing_right = True
+            if jane_direction != "right":
+                jane_direction = "right"
                 jane_img = flip_x(jane_img)
         # else: print("forward Blocked"
     if keys[pygame.K_a] and not toback_blocked:
         jane_x1 -= Mov
-        if jane_facing_right:
-            jane_facing_right = False
+        if jane_direction != "left":
+            jane_direction = "left"
             jane_img = flip_x(jane_img)
 
     # update value
@@ -231,11 +231,11 @@ while running:
     
     # cheese render
     if cheese_taken:
-        if jane_facing_right:
+        if jane_direction =="right":
             cheese_x = jane_x2 - 40
             cheese_y = jane_y2 - 40
             display.blit(cheese_img, (cheese_x, cheese_y))
-        if not jane_facing_right:
+        if jane_direction == "left":
             cheese_x = jane_x1
             cheese_y = jane_y2 - 40
             display.blit(cheese_img, (cheese_x, cheese_y))
