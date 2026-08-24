@@ -1,6 +1,28 @@
 import pygame
 from os.path import join
 
+# Blue Print
+class Platforms:
+    def __init__(self,left, top, right, bottom, height, width, img):
+            self.left = left
+            self.top = top
+            self.right = right
+            self.bottom = bottom
+            self.height = height
+            self.width = width
+            self.img = img
+
+class Jane:
+    def __init__(self,left, top, img):
+        self.left = left
+        self.top = top
+        self.height = img.get_height()
+        self.width = img.get_width()
+        self.right = self.left + self.width
+        self.bottom = self.top + self.height
+        self.img = img
+        
+
 # --- Utility Functions ---
 def setSize_W(image, width): 
     w, h = image.get_size()
@@ -14,10 +36,10 @@ def setSize_WH(image, width, height):
 def loadImage(path):
     return pygame.image.load(path)
 
-def right_edge(image):
+def calc_align_right(image):
     return WINDOW_WIDTH - image.get_width()
 
-def bottom_edge(image):
+def calc_align_bottom(image):
     return WINDOW_HEIGHT - image.get_height()
 
 def flip_x(image):
@@ -48,13 +70,7 @@ clock = pygame.time.Clock()
 jane_img = loadImage(join("assets/jane1.png")).convert_alpha()
 jane_img = setSize_W(jane_img, 100)
 
-jane_width = jane_img.get_width()
-jane_height = jane_img.get_height()
-
-jane_x1 = 0
-jane_y1 = WINDOW_HEIGHT - jane_img.get_height()
-jane_x2 = jane_x1 + jane_width
-jane_y2 = jane_y1 + jane_height
+jane = Jane(left=0, top=WINDOW_HEIGHT - jane_img.get_height(), img=jane_img)
 
 jane_direction = "right"
 forward_blocked = False
@@ -64,15 +80,15 @@ can_jump = True
 can_double_jump = False
 going_up = False
 ground = WINDOW_HEIGHT
-jump_height = 80
+jump_height = 200
 extra_jump_height = 0
 on_platform = False
 
 # --- Cheese Setup ---
 cheese_img = loadImage("assets/cheese.png").convert_alpha()
 cheese_img = setSize_W(cheese_img, 40)
-cheese_x = right_edge(cheese_img) - cheese_img.get_width()
-cheese_y = bottom_edge(cheese_img)
+cheese_x = calc_align_right(cheese_img) - cheese_img.get_width()
+cheese_y = calc_align_bottom(cheese_img)
 cheese_right = cheese_x+ cheese_img.get_width()
 cheese_taken = False
 cheese_facing_right = True
@@ -80,12 +96,12 @@ cheese_facing_right = True
 # --- Firewall Setup ---
 firewall_img = loadImage("assets/firewall.png").convert_alpha()
 firewall_img = setSize_WH(firewall_img, 100, 200)
-firewall_x = right_edge(firewall_img) - 400
-firewall_y = int(bottom_edge(firewall_img) + firewall_img.get_height() / 3)
+firewall_left = calc_align_right(firewall_img) - 400
+firewall_top = int(calc_align_bottom(firewall_img) + firewall_img.get_height() / 3)
 firewall_w = firewall_img.get_width()
 firewall_h = firewall_img.get_height()
-firewall_right = firewall_x + firewall_w
-firewall_bottom = firewall_y + firewall_h
+firewall_right = firewall_left + firewall_w
+firewall_bottom = firewall_top + firewall_h
 
 # --- Movement ---
 Mov = 10
@@ -103,8 +119,9 @@ while running:
             running = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
+                print("can_jump:", can_jump)
                 if can_double_jump and not can_jump:
-                    print("second jump at", jane_y2)
+                    print("second jump at", jane.bottom)
                     going_up = True
                     extra_jump_height += 80
                     can_double_jump = False
@@ -113,12 +130,12 @@ while running:
                     going_up = True
                     can_jump = False
                     can_double_jump = True
-                    print("Jumping:", jumping, "at", jane_y2)
+                    print("Jumping:", jumping, "at", jane.bottom)
                     starting_ground = ground
             if event.key == pygame.K_f:
                 if (
-                    jane_x2 >= cheese_x and jane_x2 <= cheese_right
-                    or jane_x1 >= cheese_x and jane_x1 <= cheese_right 
+                    jane.right >= cheese_x and jane.right <= cheese_right
+                    or jane.left >= cheese_x and jane.left <= cheese_right 
                     ):
                     if cheese_taken: cheese_taken = False
                     else: cheese_taken = True
@@ -126,59 +143,63 @@ while running:
     # Input(move forward, move backward), logic(flip avatar)
     if keys[pygame.K_d]:
         if not forward_blocked:
-            jane_x1 += Mov
+            jane.left += Mov
             if jane_direction != "right":
                 jane_direction = "right"
-                jane_img = flip_x(jane_img)
+                jane.img = flip_x(jane.img)
         # else: print("forward Blocked"
     if keys[pygame.K_a] and not toback_blocked:
-        jane_x1 -= Mov
+        jane.left -= Mov
         if jane_direction != "left":
             jane_direction = "left"
-            jane_img = flip_x(jane_img)
+            jane.img = flip_x(jane.img)
 
     # update value
-    jane_x2 = jane_x1 + jane_width
-    jane_y1 = jane_y2 - jane_height
+    jane.right = jane.left + jane.width
         
 
     # logic(collision blocking)
     if (
-        (jane_x2 >= firewall_x + int(firewall_w / 2) - 20)
+        (jane.right >= firewall_left + int(firewall_w / 2) - 20)   
         and 
-        (jane_x2 <= firewall_x + int(firewall_w / 2) + 20)
+        (jane.right <= firewall_left + int(firewall_w / 2) + 20)
         and 
-        (jane_y2 > firewall_y + 34)
+        (jane.bottom > firewall_top + 34)
         ):
         forward_blocked = True
     else:
         forward_blocked = False    
     if (
-        (jane_x1 >= firewall_x + int(firewall_w / 2) - 20 )
+        (jane.left >= firewall_left + int(firewall_w / 2) - 20 )
         and 
-        (jane_x1 <= firewall_x + int(firewall_w / 2) + 20)
+        (jane.left <= firewall_left + int(firewall_w / 2) + 20)
         and
-        (jane_y2 > firewall_y + 34)
+        (jane.bottom > firewall_top + 34)
         ):
         toback_blocked = True
     else:
         toback_blocked = False
 
-    # logic(stand on firewall)
-    if (jane_y2 <= firewall_y + 34
-        and jane_x2 >= firewall_x
-        and jane_x1 <= firewall_right):
+    # logic(ganti ground ke firewall)
+    if (jane.bottom <= firewall_top + 34
+        and jane.right >= firewall_left
+        and jane.left <= firewall_right):
         on_platform = True
-        ground = firewall_y + 34
+        ground = firewall_top + 34
     else:
         on_platform = False
 
-    # logic(fall from firewall)
+    # logic(ganti ke window ground)
     if not on_platform:
         ground = WINDOW_HEIGHT
+    
     if ground != prev_ground:
-        jumping = True
-        going_up = False
+        print("ground berubah")
+        print("on platform", on_platform)
+        if not on_platform and not jumping:
+            print("guing_up false")
+            jumping = True
+            going_up = False
     
     # log(ground changing)
     if ground != prev_ground:
@@ -188,40 +209,42 @@ while running:
     # logic(jump), log(foot coordinate)
     if jumping:
         # start jumping
-        if going_up and jump_height >= 10:
-            jane_y2 -= 10
-            print("going up: ", jane_y2)
+        if going_up:
+            jane.bottom -= 10
+            jane.top = jane.bottom - jane.height
+            print("going up: ", jane.bottom)
         # reach maxiimun
-        elif not going_up and jane_y2 < ground:
-            print("going down: ", jane_y2)
-            jane_y2 += 10
-        # reach the ground
-        if jane_y2 >= ground:
+        elif not going_up and jane.bottom < ground:
+            print("going down: ", jane.bottom)
+            jane.bottom += 10
+            jane.top = jane.bottom - jane.height
+        # reach the ground === makes stay
+        if jane.bottom >= ground:
             jumping = False
             can_jump = True
-            print("on the ground: ", jane_y2)
+            print("on the ground: ", jane.bottom)
             can_double_jump = False
             extra_jump_height = 0
-        #fall switch
-        if starting_ground - jane_y2 >= (jump_height + extra_jump_height) and going_up:
-            print("fall at", jane_y2)
+        #fall switch === makes fall permission
+        if starting_ground - jane.bottom >= (jump_height + extra_jump_height) and going_up:
+            print("fall at", jane.bottom)
             print("jump height:", jump_height+ extra_jump_height)
             going_up = False
             
     # --- Render ---
     display.fill("black")
     
-    if jane_x1 <= (firewall_x + firewall_w / 2):
+    if jane.left <= (firewall_right/ 2):
         
         sprites = [
-            (firewall_img, firewall_x, firewall_y),
-            (jane_img, jane_x1, jane_y2 - jane_height),
+            (firewall_img, firewall_left, firewall_top),
+            (jane.img, jane.left, jane.top),
         ]
         
     else:
         sprites = [
-            (jane_img, jane_x1, jane_y2 - jane_height),
-            (firewall_img, firewall_x, firewall_y),
+            (jane.img, jane.left, jane.top),
+            (firewall_img, firewall_left, firewall_top),
         ]
 
     for sprite, sx, sy in sprites:
@@ -230,15 +253,15 @@ while running:
     # cheese render
     if cheese_taken:
         if jane_direction =="right":
-            cheese_x = jane_x2 - 40
-            cheese_y = jane_y2 - 40
+            cheese_x = jane.right - 40
+            cheese_y = jane.bottom - 40
             display.blit(cheese_img, (cheese_x, cheese_y))
         if jane_direction == "left":
-            cheese_x = jane_x1
-            cheese_y = jane_y2 - 40
+            cheese_x = jane.left
+            cheese_y = jane.bottom - 40
             display.blit(cheese_img, (cheese_x, cheese_y))
     else:
-        cheese_y = bottom_edge(cheese_img)
+        cheese_y = calc_align_bottom(cheese_img)
         display.blit(cheese_img, (cheese_x, cheese_y))
     
     pygame.display.update()

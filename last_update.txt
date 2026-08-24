@@ -1,0 +1,5 @@
+1. problemnay jane bakal langsung jatuh tanpa reach maximum saat pindah dari ground ke wall
+    hint
+    - kalau sudah di ground bukan berarti langsung turun (misal saat window ground ke wall ground)
+    - kalau sudah di area platform status on ground gak trigger langsung
+    - fall cuma saat reach maximum

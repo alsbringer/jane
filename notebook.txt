@@ -1,23 +1,5 @@
-control
-    A: go left
-    S: go right
-    SPACE: jump
-    F: take/drop
-
-Object
-    Jane: player
-        - jane dapat bergerak ke kiri dan kanan
-        - jane dapat melakukan jump dan double jump tanpa limt repetisi
-        - jane tidak dapat melompat lebih dari dua kali
-        - jane dapat terhenti saat menabrak obstacle
-        - jane dapat melompat dan berdiri di atas obstacle
-        - jane dapat mengambil cheese dengan menekan F
-        - jane dapat men-drop cheese dengan menekan F saat cheese diambil
-    Firewall: obstacle
-        - just stand there
-    Cheese: takable items
-        - cheese punya fungsi menghilang dengan detection
-
-Code Logic
-    collison
-        v1: collison hanya terjadi antara jane dan firewall, 
+sudah:
+- refactor x, y -> righ, left format
+- sesuaikan head dan bottom format sehingga bug collision ataupun ground jadi lebih sesuai
+current problem:
+    - saat melompat dan terjadi perpindahan ground_window -> ground_platform, otomatis memicu fall yang seharusnya fall ditrigger oleh ketinggian maksimum yang tercapai 
